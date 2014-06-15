@@ -4,13 +4,16 @@ use warnings;
 use Cwd;
 use Carp ();
 use Module::CPANfile::Environment;
+use Module::CPANfile::Environment::Safe;
 use Module::CPANfile::Requirement;
 
 our $VERSION = '1.0905';
 
 sub new {
-    my($class, $file) = @_;
-    bless {}, $class;
+    my($class, $file, %opts) = @_;
+    my $self = bless {file => $file, opts => \%opts}, $class;
+    $self->load($file) if $file;
+    return $self;
 }
 
 sub load {
@@ -30,13 +33,15 @@ sub save {
 
 sub parse {
     my($self, $file) = @_;
-
     my $code = do {
         open my $fh, "<", $file or die "$file: $!";
         join '', <$fh>;
     };
 
-    my $env = Module::CPANfile::Environment->new($file);
+    my $env_cls = $self->{opts}->{safe} ?
+        'Module::CPANfile::Environment::Safe' :
+        'Module::CPANfile::Environment';
+    my $env = $env_cls->new($file);
     $env->parse($code) or die $@;
 
     $self->{_mirrors} = $env->mirrors;
