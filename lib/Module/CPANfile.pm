@@ -11,8 +11,8 @@ our $VERSION = '1.0905';
 
 sub new {
     my($class, $file, %opts) = @_;
-    my $self = bless {file => $file, opts => \%opts}, $class;
-    $self->load($file) if $file;
+    my $self = bless {opts => \%opts}, $class;
+    $self->load($file);
     return $self;
 }
 
