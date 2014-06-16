@@ -4,33 +4,59 @@ use parent 'Module::CPANfile::Environment';
 use Carp;
 use warnings;
 use strict;
+use v5.10;
 
 #use re 'debug';
 
-my $module_re = qr/['"] [A-Za-z:]+ ['"]/x;
-my $version_re = qr/v?[0-9]+\.[0-9_.]+/x;
-my $operator_re = qr/(?: < | <= | > | >= | == | != )/x;
-my $version_requirement_re = qr/$operator_re? \s* $version_re/x;
-my $multiple_version_requirement_re = qr/['"]? \s* $version_requirement_re (?: \s* , \s* $version_requirement_re )*  \s* ['"]?/x;
-my $module_version_requirement_re = qr/$module_re (?: \s*,\s* $multiple_version_requirement_re)?/x;
-my $requirement_re = qr/\s* (?: requires|recommends|suggests|conflicts) \s+ $module_version_requirement_re  \s*; \s* $/mx;
+my $statement_re = qr/
+(?&TOP_LEVEL)+
 
-my $phase_re = qr/['"] (?: configure | build | test | runtime | develop ) ['"] /x;
-my $on_re = qr/\s* on \s+ $phase_re \s* => \s* sub \s* { \s* $requirement_re* \s* }  \s*; \s* $/mx;
+(?(DEFINE)
+ (?<QUOTE> ['"])
 
-my $feature_re = qr/xxxxxxxxxxxxx/x; ### XXX
+ (?<MODULE_NAME> ((?&QUOTE)) ( [A-Za-z0-9_:]++ ) \g{-2} (?{#say '--> MODULE_NAME ', $^N}))
+ (?<VERSION> (v?[0-9]++\.[0-9_.]++) (?{#say '--> VERSION ', $^N}) )
+ (?<OPERATOR> (< | <= | > | >= | == | != ) (?{say '--> OPERATOR ', $^N}))
+ (?<VERSION_REQ> (?&OPERATOR)? \s* (?&VERSION) )
+ (?<MULTI_VERSION_REQ> ((?&QUOTE)?) (?&VERSION_REQ) (?: \s*,\s* (?&VERSION_REQ) )* \g{-1})
 
-my $phase_requires_re = qr/\s* (?: configure | build | test | author )_requires \s+ $module_version_requirement_re  \s*; \s* $/mx;
+ (?<MODULE_VERSION_REQ>
+  ((?&MODULE_NAME) (?: \s*,\s* (?&MULTI_VERSION_REQ) )?
+  )
+  (?{say '--> MODULE_VERSION_REQ ', $^N })
+ )
 
-my $statement_re = qr/^ \s* ($requirement_re|$on_re|$feature_re|$phase_requires_re)/mx;
+ (?<NORMAL_REQ>
+  \s* ( (requires | recommends | suggests | conflicts) \s+ (?&MODULE_VERSION_REQ) \s* ;)
+  (?{ say '--> NORMAL_REQ ', $^N})
+ )
+
+ (?<PHASE_REQ>
+  \s* ( (?:configure | build | test | author )_requires \s+ (?&MODULE_VERSION_REQ) \s* ;)
+  (?{ say '--> PHASE_REQ ', $^N})
+ )
+
+ (?<PHASE>
+  ((?&QUOTE)) ( configure | build | test | runtime | develop ) \g{-2} (?{ say '--> PHASE ', $^N})
+ )
+
+ (?<PHASE_REQ_BLOCK>
+  \s* ( on \s+ (?&PHASE) \s* => \s* sub \s* { \s* ( (?&NORMAL_REQ) | (?&PHASE_REQ) )*  \s* } \s*;)
+  (?{ say '--> PHASE_REQ_BLOCK ', $^N })
+ )
+
+ # XXX missing: feature
+
+ (?<TOP_LEVEL> ( (?&NORMAL_REQ) | (?&PHASE_REQ) | (?&PHASE_REQ_BLOCK) ) )
+)
+/xm;
 
 sub parse {
-    my ($self, $code) =  @_;
+    my ( $self, $code ) = @_;
 
     print STDERR "parsing: $code\n";
-    my @statements = $code =~ /$statement_re/gc;
-    foreach my $statement (@statements) {
-        print STDERR "--> $statement\n" if $statement;
+    while ( $code =~ /$statement_re/gc ) {
+        1;
     }
     return 1;
 }
