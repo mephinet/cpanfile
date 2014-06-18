@@ -1,0 +1,20 @@
+requires "Data::UUID" => "0";
+requires "JSON" => "0";
+requires "Moo" => "0";
+requires "MooX::Types::MooseLike::Base" => "0";
+requires "POSIX" => "0";
+requires "Time::HiRes" => "0";
+requires "Try::Tiny" => "0";
+requires "feature" => "0";
+requires "perl" => "v5.10.0";
+requires "strict" => "0";
+requires "warnings" => "0";
+
+on 'test' => sub {
+  requires "DBI" => "0";
+  requires "Test::More" => "0";
+};
+
+on 'configure' => sub {
+  requires "ExtUtils::MakeMaker" => "6.30";
+};
