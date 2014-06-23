@@ -6,4 +6,6 @@ recommends 'Pod::Usage';
 
 on test => sub {
     requires 'Test::More', 0.88;
+    requires 'Test::Differences' => 0,
+    requires 'Regexp::Assemble' => 0,
 };
