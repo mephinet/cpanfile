@@ -25,10 +25,10 @@ $blacklist->add('Business-CPI', 'Caroline', 'Carton',
     'SQL-Abstract-Plugin-InsertMulti', 'Ukigumo-Agent',
     'Ukigumo-Client', 'Win32-ServiceManager', 'carton');
 
-# on recommends, on author - not a phase
+# on recommends, on author, on development - not a phase
 $blacklist->add('Text-Sass-XS', 'Cocoa-NetworkChange',
     'Reply-Plugin-ORM', 'Text-Sass-XS', 'AnyEvent-Lingr',
-    'NgxQueue');
+    'NgxQueue', 'GFUJI-Text-Md2Inao');
 
 # missing semicolon
 $blacklist->add('Catmandu', 'File-Name-Check',
@@ -42,12 +42,6 @@ $blacklist->add('Dist-Milla', 'Furl', 'Minilla', 'Test-TCP');
 # uses variables
 $blacklist->add('Caroline', 'Minilla', 'Spellunker-Perl', 'Skype-Any',
 'App-dropboxapi');
-
-# XXX feature
-$blacklist->add('Bio-WebService-LANL-SequenceLocator',
-'Catmandu', 'Device-Blinkytape', 'Parallel-Async',
-'RT-Client-CLI', 'Task-BeLike-XAERXESS', 'Task-Plack',
-'Text-Md2Inao');
 
 my $blacklist_re = $blacklist->re;
 
