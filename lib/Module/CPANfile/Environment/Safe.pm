@@ -14,6 +14,12 @@ use v5.10;
 my @_requirements;
 my @_features;
 
+sub clean_underscores {
+    my $s = shift;
+    $s =~ s/_//g if $s;
+    return $s;
+}
+
 my $_statement_re = qr/
 (?&TOP_LEVEL)
 
@@ -22,14 +28,14 @@ my $_statement_re = qr/
  (?<NONQUOTE> [^'"])
  (?<COMMENT> \#.* $ )
 
- (?<EOL> \s* ;? \s* (?&COMMENT)? $ )
+ (?<EOL> \s* [;,]? \s* (?&COMMENT)? $ )
 
  # save module_name and module_version in the hash
  (?<MODULE_NAME> ((?&QUOTE)?) ( [A-Za-z0-9_:]++ ) \g{-2}
    (?{ die "overwriting module" if $^R->{module}; {module => $^N, %{$^R}} })
  )
  (?<VERSION> (v?[0-9_.]++) )
- (?<UNQUOTED_VERSION> ([0-9_.]+?)\.?0*+ (?{ {version => $^N, %{$^R}} }) )
+ (?<UNQUOTED_VERSION> ([0-9_.]+?)\.?0*+ (?{ my $v = $^N; {version => clean_underscores($v), %{$^R}} }) )
  (?<OPERATOR> ( <= | < | >= | > | == | != ) )
  (?<VERSION_REQ> (?&OPERATOR)?+ \s* (?&VERSION))
 

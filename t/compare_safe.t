@@ -22,16 +22,7 @@ $blacklist->add(
 );
 
 # missing semicolon
-$blacklist->add(
-    'Catmandu',                  'File-Name-Check',
-    'Module-Build-XSUtil',       'Smart-Options',
-    'Task-Plack',                'Try-Lite',
-    'MooseX-CoercePerAttribute', 'Dancer-Plugin-Catmandu',
-    'Data-OpeningHours'
-);
-
-# uses _ syntax in float - works but test fails
-$blacklist->add( 'Dist-Milla', 'Furl', 'Minilla', 'Test-TCP' );
+$blacklist->add('Module-Build-XSUtil', 'Task-Plack', 'Dist-Zilla-Plugin-Prereqs-FromCPANfile');
 
 # uses variables
 $blacklist->add(
@@ -39,8 +30,6 @@ $blacklist->add(
     'App-dropboxapi'
 );
 
-# don't know why
-$blacklist->add('Dist-Zilla-Plugin-Prereqs-FromCPANfile');
 
 my $blacklist_re = $blacklist->re;
 
