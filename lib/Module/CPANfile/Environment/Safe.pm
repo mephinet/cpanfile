@@ -29,10 +29,17 @@ my $_statement_re = qr/
    (?{ die "overwriting module" if $^R->{module}; {module => $^N, %{$^R}} })
  )
  (?<VERSION> (v?[0-9_.]++) )
+ (?<UNQUOTED_VERSION> ([0-9_.]+?)\.?0*+ (?{ {version => $^N, %{$^R}} }) )
  (?<OPERATOR> ( <= | < | >= | > | == | != ) )
- (?<VERSION_REQ> (?&OPERATOR)?+ \s* (?&VERSION) )
- (?<MULTI_VERSION_REQ> ((?&QUOTE)?) ( (?&VERSION_REQ) (?: \s*,\s* (?&VERSION_REQ) )*+ ) \g{-2}
-   (?{ die "overwriting version" if $^R->{version}; {version => $^N, %{$^R}} }))
+ (?<VERSION_REQ> (?&OPERATOR)?+ \s* (?&VERSION))
+
+ (?<MULTI_VERSION_REQ>
+   (?: ( (?&UNQUOTED_VERSION) )
+   | (?: ((?&QUOTE)?) ( (?&VERSION_REQ) (?: \s*,\s* (?&VERSION_REQ) )*+ ) \g{-2}
+       (?{ {version => $^N, %{$^R}} })
+     )
+   ))
+
 
  (?<MODULE_VERSION_REQ>
   ((?&MODULE_NAME) (?: \s* (?: , | => ) \s* (?: (?&MULTI_VERSION_REQ) | undef | '' | "") )?
